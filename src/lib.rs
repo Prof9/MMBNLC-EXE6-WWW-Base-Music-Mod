@@ -2,6 +2,8 @@ use ilhook::x64::{Hooker, HookPoint, HookType, JmpToRetRoutine, Registers, Callb
 use std::os::raw::{c_int, c_void};
 use winapi::{shared::minwindef::{BOOL, DWORD, HINSTANCE, LPVOID, TRUE}, um::winnt::DLL_PROCESS_DETACH};
 
+mod memsearch;
+
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 pub struct GBAState {
@@ -34,7 +36,8 @@ pub extern "system" fn DllMain(_module: HINSTANCE, call_reason: DWORD, _reserved
     TRUE
 }
 
-fn hook(addr: usize, func: JmpToRetRoutine) {
+fn hook_direct(addr: usize, func: JmpToRetRoutine) {
+    println!("Hooking {addr:#X}");
     let hooker = Hooker::new(
         addr,
         HookType::JmpToRet(func),
@@ -48,9 +51,18 @@ fn hook(addr: usize, func: JmpToRetRoutine) {
     unsafe { &mut HOOKS }.push(hook);
 }
 
+fn hook_search(what: &str, func: JmpToRetRoutine) {
+    println!("Searching for: {what}");
+    let matches = memsearch::search(what, 0x140000000, 0x10000000)
+        .expect(format!("Failed to find: {what}").as_str());
+    for addr in matches.iter() {
+        hook_direct(*addr, func);
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn luaopen_patch(_: c_void) -> c_int {
-    hook(0x1421405F6, on_hook);
+    hook_search("FC 01 4C 8D 63 10 75 0C|C7 03 61 00 00 00 EB 04", on_hook);
     0
 }
 
