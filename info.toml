@@ -1,0 +1,5 @@
+title = "Postgame WWW Base Music"
+version = "1.0.0"
+authors = [ "Prof. 9" ]
+unsafe = true
+requires_loader_version = ">=0.8.1"
