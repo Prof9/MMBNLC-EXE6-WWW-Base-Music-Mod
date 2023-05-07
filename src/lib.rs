@@ -51,18 +51,19 @@ fn hook_direct(addr: usize, func: JmpToRetRoutine) {
     unsafe { &mut HOOKS }.push(hook);
 }
 
-fn hook_search(what: &str, func: JmpToRetRoutine) {
+fn hook_search(what: &str, n: usize, func: JmpToRetRoutine) {
     println!("Searching for: {what}");
-    let matches = memsearch::search(what, 0x140000000, 0x10000000)
-        .expect(format!("Failed to find: {what}").as_str());
-    for addr in matches.iter() {
-        hook_direct(*addr, func);
+    let query = memsearch::Query::build(what).expect("query string should be valid");
+    println!("Built search query");
+    let matches = query.iter_matches_in(0x140000000, 0x10000000).take(n);
+    for addr in matches {
+        hook_direct(addr, func);
     }
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn luaopen_patch(_: c_void) -> c_int {
-    hook_search("FC 01 4C 8D 63 10 75 0C|C7 03 61 00 00 00 EB 04", on_hook);
+    hook_search("FC 01 4C 8D 63 10 75 0C|C7 03 61 00 00 00 EB 04", 2, on_hook);
     0
 }
 
