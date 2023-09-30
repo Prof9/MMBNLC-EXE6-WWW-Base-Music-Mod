@@ -55,14 +55,14 @@ fn hook_direct(addr: usize, func: JmpToRetRoutine) {
 
 fn hook_search(what: &str, n: usize, func: JmpToRetRoutine) {
     let image_base: usize = 0x140000000 as usize;
-    let xtext_start: usize = unsafe { *((image_base+0x1EC) as *const u32) as usize + image_base };
-    let xtext_size: usize = unsafe { *((image_base+0x1F0) as *const u32) as usize };
+    let tls_start: usize = unsafe { *((image_base+0x1E4) as *const u32) as usize + image_base };
+    let tls_size: usize = unsafe { *((image_base+0x1E8) as *const u32) as usize };
 
     println!("Searching for: {what}");
     let query = memsearch::Query::build(what).expect("query string should be valid");
     println!("Query built");
     let matches = query
-        .iter_matches_in(xtext_start, xtext_size)
+        .iter_matches_in(tls_start, tls_size)
         .take(n);
     for addr in matches {
         hook_direct(addr, func);
