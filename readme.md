@@ -35,6 +35,10 @@ Windows PC and Steam Deck
 Version History
 ---------------
 
+Ver. 1.0.1 - 15 October 2023
+
+* Updated to work with Steam version 1.0.0.3.
+
 Ver. 1.0.0 - 8 May 2023
 
 * Initial version.
