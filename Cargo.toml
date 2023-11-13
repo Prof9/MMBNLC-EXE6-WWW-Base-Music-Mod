@@ -1,14 +1,12 @@
 [package]
 name = "patch"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["dylib"]
+crate-type = ["cdylib"]
 
 [dependencies]
+bitflags = "2.4.1"
 ilhook = "2.0.0"
-object = "0.32.1"
-region = "3.0.0"
-wchar = "0.11.0"
-winapi = { version = "0.3.9", features = ["libloaderapi", "minwindef", "winnt"] }
+mlua = { version = "0.9.1", features = ["lua54", "module"] }
